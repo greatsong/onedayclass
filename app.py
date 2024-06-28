@@ -1,9 +1,12 @@
 import streamlit as st
 import pandas as pd
 
-# 데이터 저장소
-classes_data = []
-registrations = []
+# 세션 상태 초기화
+if 'classes_data' not in st.session_state:
+    st.session_state.classes_data = []
+
+if 'registrations' not in st.session_state:
+    st.session_state.registrations = []
 
 # 비밀번호
 password = "1234"
@@ -35,22 +38,22 @@ def input_class_info():
             "참여 가능 인원": max_participants,
             "신청자": 0
         }
-        classes_data.append(class_info)
+        st.session_state.classes_data.append(class_info)
         st.success("강의 정보가 저장되었습니다.")
         
-    if classes_data:
+    if st.session_state.classes_data:
         st.write("저장된 강의 정보:")
-        st.dataframe(pd.DataFrame(classes_data))
+        st.dataframe(pd.DataFrame(st.session_state.classes_data))
 
 # 수강신청 페이지
 def register_for_class():
     st.title("수강신청")
     
-    if not classes_data:
+    if not st.session_state.classes_data:
         st.error("현재 등록된 강의가 없습니다.")
         return
     
-    selected_class = st.selectbox("강의를 선택하세요", classes_data, format_func=lambda x: f"{x['날짜']} - {x['주제']}")
+    selected_class = st.selectbox("강의를 선택하세요", st.session_state.classes_data, format_func=lambda x: f"{x['날짜']} - {x['주제']}")
     
     if selected_class is None:
         st.error("강의를 선택해주세요.")
@@ -76,7 +79,7 @@ def register_for_class():
             "이메일": email,
             "강의": selected_class
         }
-        registrations.append(registration)
+        st.session_state.registrations.append(registration)
         selected_class["신청자"] += 1
         st.success("수강신청이 완료되었습니다.")
 
@@ -85,7 +88,7 @@ def view_registration_results():
     st.title("수강신청 결과")
     
     grouped_registrations = {}
-    for reg in registrations:
+    for reg in st.session_state.registrations:
         class_topic = reg["강의"]["주제"]
         if class_topic not in grouped_registrations:
             grouped_registrations[class_topic] = []
