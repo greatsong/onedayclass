@@ -46,7 +46,15 @@ def input_class_info():
 def register_for_class():
     st.title("수강신청")
     
+    if not classes_data:
+        st.error("현재 등록된 강의가 없습니다.")
+        return
+    
     selected_class = st.selectbox("강의를 선택하세요", classes_data, format_func=lambda x: f"{x['날짜']} - {x['주제']}")
+    
+    if selected_class is None:
+        st.error("강의를 선택해주세요.")
+        return
 
     if selected_class["신청자"] >= selected_class["참여 가능 인원"]:
         st.error("해당 강의는 신청 인원이 초과되었습니다.")
@@ -71,7 +79,7 @@ def register_for_class():
         registrations.append(registration)
         selected_class["신청자"] += 1
         st.success("수강신청이 완료되었습니다.")
-        
+
 # 수강신청 결과 페이지
 def view_registration_results():
     st.title("수강신청 결과")
